@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: stg_thelook__orders
+    description: Órdenes (cabecera), una fila por orden. Limpieza 1:1 de la fuente.
+    columns:
+      - name: order_id
+        description: Clave primaria de la orden.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_thelook__order_items
+    description: Líneas de orden, una fila por ítem vendido. Limpieza 1:1 de la fuente.
+    columns:
+      - name: order_item_id
+        description: Clave primaria de la línea de orden.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_thelook__products
+    description: Catálogo de productos. Limpieza 1:1 de la fuente.
+    columns:
+      - name: product_id
+        description: Clave primaria del producto.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_thelook__users
+    description: Usuarios / clientes. Limpieza 1:1 de la fuente.
+    columns:
+      - name: user_id
+        description: Clave primaria del usuario.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_thelook__inventory_items
+    description: Ítems de inventario, una fila por unidad física. Limpieza 1:1 de la fuente.
+    columns:
+      - name: inventory_item_id
+        description: Clave primaria del ítem de inventario.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_thelook__distribution_centers
+    description: Centros de distribución. Limpieza 1:1 de la fuente.
+    columns:
+      - name: distribution_center_id
+        description: Clave primaria del centro de distribución.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_thelook__events
+    description: Eventos de navegación web. Limpieza 1:1 de la fuente.
+    columns:
+      - name: event_id
+        description: Clave primaria del evento.
+        data_tests:
+          - unique
+          - not_null
