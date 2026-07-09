@@ -74,7 +74,7 @@ macros/  ·  tests/  ·  seeds/  ·  .github/workflows/
 
 - [x] **Fase 0 — Fundaciones.** Proyecto GCP, dbt + BigQuery, repo, materializaciones por capa.
 - [x] **Fase 1 — Sources + staging.** Las 7 tablas como `source` con freshness; los 7 modelos de staging.
-- [ ] **Fase 2 — Núcleo dimensional.** Dims + facts incrementales, partición/cluster, relationships.
+- [x] **Fase 2 — Núcleo dimensional.** Dims + facts incrementales, partición/cluster, relationships.
 - [ ] **Fase 3 — Snapshots SCD2.** Historial de precio/costo y margen histórico correcto.
 - [ ] **Fase 4 — Calidad + docs.** `dbt_expectations`, contracts, docs y linaje.
 - [ ] **Fase 5 — Marts analíticos.** Performance de producto, salud de inventario (ABC), RFM, SLA de fulfillment.
