@@ -1,0 +1,127 @@
+version: 2
+
+models:
+  # ---------------- dimensiones ----------------
+  - name: dim_products
+    description: Dimensión de productos del catálogo.
+    columns:
+      - name: product_id
+        description: Clave primaria del producto.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_customers
+    description: Dimensión de clientes, enriquecida con comportamiento de compra.
+    columns:
+      - name: customer_id
+        description: Clave primaria del cliente (user_id de la fuente).
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_distribution_centers
+    description: Dimensión de centros de distribución.
+    columns:
+      - name: distribution_center_id
+        description: Clave primaria del centro de distribución.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_dates
+    description: Dimensión de fechas generada con dbt_date.
+    columns:
+      - name: date_day
+        description: Clave primaria (día calendario).
+        data_tests:
+          - unique
+          - not_null
+
+  # ---------------- hechos ----------------
+  - name: fct_order_items
+    description: >
+      Hecho al grano de línea de orden. Incremental, particionado por fecha de
+      orden y clusterizado por producto y centro. Métricas de venta, costo y margen.
+    columns:
+      - name: order_item_id
+        description: Clave primaria de la línea de orden.
+        data_tests:
+          - unique
+          - not_null
+      - name: product_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+      - name: distribution_center_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_distribution_centers')
+                field: distribution_center_id
+      - name: user_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_day
+
+  - name: fct_orders
+    description: >
+      Hecho al grano de orden. Incremental, particionado por fecha de orden y
+      clusterizado por estado. Totales de ingreso, costo y margen por orden.
+    columns:
+      - name: order_id
+        description: Clave primaria de la orden.
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_day
+
+  - name: fct_inventory_snapshot
+    description: >
+      Foto diaria de inventario por producto x centro (units_on_hand y valor a
+      costo). Incremental, particionado por snapshot_date. Ventana configurable
+      vía var inventory_snapshot_start_date.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [snapshot_date, product_id, distribution_center_id]
+    columns:
+      - name: product_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+      - name: distribution_center_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_distribution_centers')
+                field: distribution_center_id
+      - name: snapshot_date
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_day

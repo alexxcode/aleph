@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: int_order_items_enriched
+    description: >
+      Líneas de orden enriquecidas con el costo real de la unidad vendida
+      (vía inventory_items) y el centro de distribución que la surtió.
+      Grano: línea de orden. Materializado como ephemeral.
+
+  - name: int_customer_orders
+    description: >
+      Agregado de órdenes por cliente: primera compra, compra más reciente
+      y número de órdenes de por vida. Alimenta dim_customers.
+      Grano: cliente. Materializado como ephemeral.

@@ -16,6 +16,12 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+vars:
+  # requerido por dbt_date para resolver fechas/timestamps
+  "dbt_date:time_zone": "UTC"
+  # ventana de la foto diaria de inventario (fct_inventory_snapshot)
+  inventory_snapshot_start_date: "2025-07-01"
+
 # Materializaciones por defecto por capa (instrucciones.md §4).
 # Los facts se materializan como incremental con partición/cluster; esa
 # configuración vive en el propio modelo (necesita partition_by/cluster_by)
