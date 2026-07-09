@@ -1,0 +1,30 @@
+# === dbt ===
+target/
+dbt_packages/
+logs/
+# dbt puede generar un profiles.yml local; nunca se commitea
+profiles.yml
+
+# === Python / venv ===
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# === Secretos (repo público, ver instrucciones.md §3.1) ===
+.env
+.env.*
+# keyfiles de service accounts / credenciales GCP
+*keyfile*.json
+service-account*.json
+service_account*.json
+gcp-*.json
+credentials.json
+*-credentials.json
+application_default_credentials.json
+
+# === SO / editor ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

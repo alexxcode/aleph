@@ -1,0 +1,4 @@
+# Entorno dbt del proyecto Aleph.
+# dbt Core v1.x estable + dbt-bigquery (NO Fusion / Core v2, ver instrucciones.md §1).
+# Pin a la serie 1.11 (probada con Python 3.12).
+dbt-bigquery~=1.11.3

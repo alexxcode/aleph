@@ -1,0 +1,33 @@
+name: 'aleph'
+version: '1.0.0'
+config-version: 2
+
+# Perfil definido en ~/.dbt/profiles.yml (nunca en el repo, ver instrucciones.md §3.1)
+profile: 'aleph'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Materializaciones por defecto por capa (instrucciones.md §4).
+# Los facts se materializan como incremental con partición/cluster; esa
+# configuración vive en el propio modelo (necesita partition_by/cluster_by)
+# y se añade en la Fase 2.
+models:
+  aleph:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: ephemeral
+    marts:
+      core:
+        +materialized: table
+      analytics:
+        +materialized: table
