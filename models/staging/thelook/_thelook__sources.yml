@@ -35,3 +35,14 @@ sources:
 
       - name: events
         description: Eventos de navegación web (sesiones, tráfico, tipo de evento).
+
+  - name: raw_thelook
+    description: >
+      Copia controlada de `products` en un dataset propio (`raw_thelook`), el
+      único CTAS permitido sobre la fuente pública. Habilita simular cambios de
+      precio/costo para el snapshot SCD2 `snap_products` (ver Fase 3).
+    database: aleph12
+    schema: raw_thelook
+    tables:
+      - name: products
+        description: Catálogo de productos bajo nuestro control (fuente del snapshot).

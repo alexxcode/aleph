@@ -1,0 +1,18 @@
+version: 2
+
+snapshots:
+  - name: snap_products
+    description: >
+      Historial SCD2 de costo y precio de productos (estrategia `check` sobre
+      `cost` y `retail_price`). Lee la copia controlada `raw_thelook.products`.
+      Habilita calcular el margen con el costo vigente al momento de la venta.
+    columns:
+      - name: dbt_scd_id
+        description: Clave surrogate de cada versión (una fila por producto y período de validez).
+        data_tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: Clave natural del producto.
+        data_tests:
+          - not_null
