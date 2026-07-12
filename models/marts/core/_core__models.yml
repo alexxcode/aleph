@@ -73,6 +73,12 @@ models:
               arguments:
                 to: ref('dim_dates')
                 field: date_day
+      - name: product_cost_at_sale
+        description: >
+          Costo del producto vigente al momento de la venta, resuelto contra el
+          historial SCD2 de snap_products (no el costo actual). Ver Fase 3.
+      - name: gross_margin_at_sale
+        description: Margen bruto usando product_cost_at_sale (sale_price - product_cost_at_sale).
 
   - name: fct_orders
     description: >

@@ -40,7 +40,11 @@ final as (
         -- métricas
         sale_price,
         cost,
-        gross_margin_amount
+        gross_margin_amount,
+
+        -- métricas SCD2: costo del producto vigente al momento de la venta
+        product_cost_at_sale,
+        gross_margin_at_sale
 
     from enriched
 
