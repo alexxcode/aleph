@@ -1,0 +1,69 @@
+# Grafo de linaje
+
+Generado desde `target/manifest.json` (`dbt docs generate`). Capa: fuente → staging → intermediate → dims/facts → snapshot → exposures.
+
+```mermaid
+flowchart LR
+    dim_customers["dim_customers"]:::dim
+    dim_dates["dim_dates"]:::dim
+    dim_distribution_centers["dim_distribution_centers"]:::dim
+    dim_products["dim_products"]:::dim
+    exp_demand_forecast["Forecast de demanda (ML)"]:::exposure
+    exp_executive_dashboard["Dashboard ejecutivo (BI)"]:::exposure
+    fct_inventory_snapshot["fct_inventory_snapshot"]:::fct
+    fct_order_items["fct_order_items"]:::fct
+    fct_orders["fct_orders"]:::fct
+    int_customer_orders["int_customer_orders"]:::intermediate
+    int_order_items_enriched["int_order_items_enriched"]:::intermediate
+    snap_products["snap_products"]:::snap
+    src_distribution_centers["thelook.distribution_centers"]:::source
+    src_events["thelook.events"]:::source
+    src_inventory_items["thelook.inventory_items"]:::source
+    src_order_items["thelook.order_items"]:::source
+    src_orders["thelook.orders"]:::source
+    src_products["raw_thelook.products"]:::source
+    src_users["thelook.users"]:::source
+    stg_thelook__distribution_centers["stg_thelook__distribution_centers"]:::staging
+    stg_thelook__events["stg_thelook__events"]:::staging
+    stg_thelook__inventory_items["stg_thelook__inventory_items"]:::staging
+    stg_thelook__order_items["stg_thelook__order_items"]:::staging
+    stg_thelook__orders["stg_thelook__orders"]:::staging
+    stg_thelook__products["stg_thelook__products"]:::staging
+    stg_thelook__users["stg_thelook__users"]:::staging
+
+    dim_dates --> fct_inventory_snapshot
+    dim_products --> exp_demand_forecast
+    dim_products --> exp_executive_dashboard
+    fct_inventory_snapshot --> exp_executive_dashboard
+    fct_order_items --> exp_demand_forecast
+    fct_order_items --> exp_executive_dashboard
+    fct_orders --> exp_executive_dashboard
+    int_customer_orders --> dim_customers
+    int_order_items_enriched --> fct_order_items
+    int_order_items_enriched --> fct_orders
+    snap_products --> int_order_items_enriched
+    src_distribution_centers --> stg_thelook__distribution_centers
+    src_events --> stg_thelook__events
+    src_inventory_items --> stg_thelook__inventory_items
+    src_order_items --> stg_thelook__order_items
+    src_orders --> stg_thelook__orders
+    src_products --> snap_products
+    src_products --> stg_thelook__products
+    src_users --> stg_thelook__users
+    stg_thelook__distribution_centers --> dim_distribution_centers
+    stg_thelook__inventory_items --> fct_inventory_snapshot
+    stg_thelook__inventory_items --> int_order_items_enriched
+    stg_thelook__order_items --> int_order_items_enriched
+    stg_thelook__orders --> fct_orders
+    stg_thelook__orders --> int_customer_orders
+    stg_thelook__products --> dim_products
+    stg_thelook__users --> dim_customers
+
+    classDef source fill:#e8e8e8,stroke:#888,color:#000;
+    classDef staging fill:#cfe8ff,stroke:#3b82f6,color:#000;
+    classDef intermediate fill:#e5d4ff,stroke:#8b5cf6,color:#000;
+    classDef dim fill:#d1fae5,stroke:#10b981,color:#000;
+    classDef fct fill:#fde68a,stroke:#d97706,color:#000;
+    classDef snap fill:#fbcfe8,stroke:#db2777,color:#000;
+    classDef exposure fill:#fca5a5,stroke:#dc2626,color:#000;
+```

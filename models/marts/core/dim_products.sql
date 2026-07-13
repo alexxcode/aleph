@@ -1,3 +1,5 @@
+{{ config(contract={'enforced': true}) }}
+
 with products as (
 
     select * from {{ ref('stg_thelook__products') }}

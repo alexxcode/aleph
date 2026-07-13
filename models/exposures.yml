@@ -1,0 +1,32 @@
+version: 2
+
+exposures:
+  - name: executive_dashboard
+    label: Dashboard ejecutivo (BI)
+    type: dashboard
+    maturity: low
+    description: >
+      Dashboard de negocio (Evidence.dev, Fase 9) sobre ventas, márgenes e
+      inventario. La URL se completa al desplegar la capa BI.
+    url: https://github.com/alexxcode/aleph
+    depends_on:
+      - ref('fct_orders')
+      - ref('fct_order_items')
+      - ref('fct_inventory_snapshot')
+      - ref('dim_products')
+    owner:
+      name: Alexis Rojas
+
+  - name: demand_forecast
+    label: Forecast de demanda (ML)
+    type: ml
+    maturity: low
+    description: >
+      Modelo de pronóstico de demanda (LightGBM, Fase 6) que consume features
+      derivadas de las ventas. Su salida (ml_forecast_demand) reingresa a dbt
+      como source para las recomendaciones de inventario.
+    depends_on:
+      - ref('fct_order_items')
+      - ref('dim_products')
+    owner:
+      name: Alexis Rojas

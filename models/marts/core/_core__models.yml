@@ -3,13 +3,55 @@ version: 2
 models:
   # ---------------- dimensiones ----------------
   - name: dim_products
-    description: Dimensión de productos del catálogo.
+    description: >
+      Dimensión de productos del catálogo (grano: un producto). Fuente controlada
+      raw_thelook.products. Contract forzado: tipos y not_null garantizados.
+    config:
+      contract:
+        enforced: true
     columns:
       - name: product_id
         description: Clave primaria del producto.
+        data_type: int64
+        constraints:
+          - type: not_null
         data_tests:
           - unique
           - not_null
+      - name: distribution_center_id
+        description: Centro de distribución al que pertenece el producto.
+        data_type: int64
+      - name: product_name
+        description: Nombre del producto.
+        data_type: string
+      - name: category
+        description: Categoría del producto.
+        data_type: string
+      - name: brand
+        description: Marca del producto.
+        data_type: string
+      - name: department
+        description: Departamento (p. ej. Men/Women).
+        data_type: string
+      - name: sku
+        description: SKU del producto.
+        data_type: string
+      - name: cost
+        description: Costo unitario actual del producto.
+        data_type: float64
+        constraints:
+          - type: not_null
+      - name: retail_price
+        description: Precio de lista actual del producto.
+        data_type: float64
+        constraints:
+          - type: not_null
+      - name: base_margin_amount
+        description: Margen base del catálogo (retail_price - cost).
+        data_type: float64
+      - name: base_margin_pct
+        description: Margen base como fracción del precio (safe_divide).
+        data_type: float64
 
   - name: dim_customers
     description: Dimensión de clientes, enriquecida con comportamiento de compra.
@@ -42,43 +84,100 @@ models:
   - name: fct_order_items
     description: >
       Hecho al grano de línea de orden. Incremental, particionado por fecha de
-      orden y clusterizado por producto y centro. Métricas de venta, costo y margen.
+      orden y clusterizado por producto y centro. Contract forzado.
+    config:
+      contract:
+        enforced: true
     columns:
       - name: order_item_id
         description: Clave primaria de la línea de orden.
+        data_type: int64
+        constraints:
+          - type: not_null
         data_tests:
           - unique
           - not_null
+      - name: order_id
+        description: Orden a la que pertenece la línea.
+        data_type: int64
+        constraints:
+          - type: not_null
+      - name: user_id
+        description: Cliente que realizó la compra.
+        data_type: int64
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
       - name: product_id
+        description: Producto vendido.
+        data_type: int64
+        constraints:
+          - type: not_null
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_products')
                 field: product_id
       - name: distribution_center_id
+        description: Centro de distribución de la unidad vendida.
+        data_type: int64
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_distribution_centers')
                 field: distribution_center_id
-      - name: user_id
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('dim_customers')
-                field: customer_id
+      - name: inventory_item_id
+        description: Unidad física de inventario vendida.
+        data_type: int64
       - name: order_date
+        description: Fecha de la orden (columna de partición).
+        data_type: date
+        constraints:
+          - type: not_null
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_dates')
                 field: date_day
+      - name: status
+        description: Estado de la línea de orden.
+        data_type: string
+      - name: ordered_at
+        description: Timestamp de creación de la orden.
+        data_type: timestamp
+      - name: shipped_at
+        description: Timestamp de envío.
+        data_type: timestamp
+      - name: delivered_at
+        description: Timestamp de entrega.
+        data_type: timestamp
+      - name: returned_at
+        description: Timestamp de devolución.
+        data_type: timestamp
+      - name: sale_price
+        description: Precio de venta de la línea.
+        data_type: float64
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                strictly: false
+      - name: cost
+        description: Costo real de la unidad vendida (de inventory_items).
+        data_type: float64
+      - name: gross_margin_amount
+        description: Margen bruto operativo (sale_price - cost).
+        data_type: float64
       - name: product_cost_at_sale
         description: >
           Costo del producto vigente al momento de la venta, resuelto contra el
           historial SCD2 de snap_products (no el costo actual). Ver Fase 3.
+        data_type: float64
       - name: gross_margin_at_sale
-        description: Margen bruto usando product_cost_at_sale (sale_price - product_cost_at_sale).
+        description: Margen bruto usando product_cost_at_sale.
+        data_type: float64
 
   - name: fct_orders
     description: >
@@ -91,12 +190,14 @@ models:
           - unique
           - not_null
       - name: user_id
+        description: Cliente de la orden.
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Fecha de la orden (columna de partición).
         data_tests:
           - relationships:
               arguments:
@@ -114,18 +215,21 @@ models:
             combination_of_columns: [snapshot_date, product_id, distribution_center_id]
     columns:
       - name: product_id
+        description: Producto.
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_products')
                 field: product_id
       - name: distribution_center_id
+        description: Centro de distribución.
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_distribution_centers')
                 field: distribution_center_id
       - name: snapshot_date
+        description: Día de la foto (columna de partición).
         data_tests:
           - relationships:
               arguments:
