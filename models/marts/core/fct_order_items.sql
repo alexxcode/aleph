@@ -4,7 +4,8 @@
         incremental_strategy='insert_overwrite',
         partition_by={'field': 'order_date', 'data_type': 'date'},
         cluster_by=['product_id', 'distribution_center_id'],
-        on_schema_change='sync_all_columns'
+        on_schema_change='append_new_columns',
+        contract={'enforced': true}
     )
 }}
 
