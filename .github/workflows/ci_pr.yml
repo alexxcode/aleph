@@ -3,6 +3,8 @@ name: CI (PR)
 # Construye cada PR en un dataset efímero aislado (dbt_ci_pr_<n>), corre
 # dbt build (Slim CI si hay manifest de prod para --defer) y borra el dataset
 # al final, pase o falle. Nunca toca `analytics`.
+#
+# Autenticación keyless con Workload Identity Federation (sin keyfile).
 
 on:
   pull_request:
@@ -12,15 +14,27 @@ concurrency:
   group: ci-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  id-token: write        # requerido para el OIDC de WIF
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       CI_DATASET: dbt_ci_pr_${{ github.event.pull_request.number }}
-      KEYFILE: ${{ github.workspace }}/gcp-keyfile.json
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Autenticar en GCP (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: aleph12
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
 
       - uses: actions/setup-python@v5
         with:
@@ -28,14 +42,6 @@ jobs:
 
       - name: Instalar dbt
         run: pip install -r requirements.txt
-
-      - name: Autenticar en GCP (service account)
-        env:
-          DBT_GOOGLE_KEYFILE: ${{ secrets.DBT_GOOGLE_KEYFILE }}
-        run: |
-          printf '%s' "$DBT_GOOGLE_KEYFILE" > "$KEYFILE"
-          gcloud auth activate-service-account --key-file="$KEYFILE"
-          gcloud config set project aleph12
 
       - name: Generar profiles.yml de CI
         run: |
@@ -46,8 +52,7 @@ jobs:
             outputs:
               ci:
                 type: bigquery
-                method: service-account
-                keyfile: $KEYFILE
+                method: oauth
                 project: aleph12
                 dataset: ${CI_DATASET}
                 location: US
