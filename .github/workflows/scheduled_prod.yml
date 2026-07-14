@@ -1,0 +1,69 @@
+name: Prod (scheduled)
+
+# Corrida diaria contra `analytics`. Usa --full-refresh porque la fuente pública
+# thelook se regenera (reasigna order_id a nuevas fechas) y con insert_overwrite
+# eso dejaría filas huérfanas entre particiones. Publica manifest.json como
+# artefacto para el --defer del Slim CI de los PRs.
+
+on:
+  schedule:
+    - cron: "0 7 * * *"   # 07:00 UTC diario
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      KEYFILE: ${{ github.workspace }}/gcp-keyfile.json
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dbt
+        run: pip install -r requirements.txt
+
+      - name: Autenticar en GCP (service account)
+        env:
+          DBT_GOOGLE_KEYFILE: ${{ secrets.DBT_GOOGLE_KEYFILE }}
+        run: |
+          printf '%s' "$DBT_GOOGLE_KEYFILE" > "$KEYFILE"
+          gcloud auth activate-service-account --key-file="$KEYFILE"
+          gcloud config set project aleph12
+
+      - name: Generar profiles.yml de prod
+        run: |
+          mkdir -p "$HOME/.dbt"
+          cat > "$HOME/.dbt/profiles.yml" <<EOF
+          aleph:
+            target: prod
+            outputs:
+              prod:
+                type: bigquery
+                method: service-account
+                keyfile: $KEYFILE
+                project: aleph12
+                dataset: analytics
+                location: US
+                threads: 8
+                maximum_bytes_billed: 50000000000
+          EOF
+
+      - name: dbt deps
+        run: dbt deps
+
+      - name: dbt build (prod, full-refresh)
+        run: dbt build --full-refresh
+
+      - name: Generar docs
+        run: dbt docs generate
+
+      - name: Publicar manifest de prod (para Slim CI)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-manifest
+          path: target/manifest.json
+          retention-days: 30

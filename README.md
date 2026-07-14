@@ -1,5 +1,8 @@
 # Aleph
 
+[![CI (PR)](https://github.com/alexxcode/aleph/actions/workflows/ci_pr.yml/badge.svg)](https://github.com/alexxcode/aleph/actions/workflows/ci_pr.yml)
+[![Prod (scheduled)](https://github.com/alexxcode/aleph/actions/workflows/scheduled_prod.yml/badge.svg)](https://github.com/alexxcode/aleph/actions/workflows/scheduled_prod.yml)
+
 > *"El lugar donde están, sin confundirse, todos los lugares del orbe, vistos desde todos los ángulos."* — J. L. Borges
 
 En ingeniería de datos, ese punto que lo contiene todo tiene un nombre más prosaico: **Single Source of Truth**. **Aleph** es una plataforma de analítica *end-to-end* para un distribuidor de e-commerce, construida sobre **dbt + BigQuery**, que va del dato crudo a una recomendación de inventario accionable — y cierra el círculo devolviendo un pronóstico de demanda (ML) al warehouse.
@@ -80,7 +83,7 @@ macros/  ·  tests/  ·  seeds/  ·  .github/workflows/
 - [x] **Fase 5 — Marts analíticos.** Performance de producto, salud de inventario (ABC), RFM, SLA de fulfillment.
 - [x] **Fase 6 — Features + forecast ML.** Features de demanda (categoría×semana), LightGBM con validación temporal, forecast de vuelta a BQ, recomendaciones de inventario.
 - [x] **Fase 7 — Capa semántica.** Métricas (revenue, gross_margin, aov, units_sold) con MetricFlow.
-- [ ] **Fase 8 — Orquestación + CI/CD.** Actions, Slim CI, corrida diaria.
+- [x] **Fase 8 — Orquestación + CI/CD.** Actions (dataset efímero por PR + teardown), Slim CI (`state:modified+ --defer`), corrida diaria a `analytics`. Ver [setup](docs/ci-setup.md).
 - [ ] **Fase 9 — BI + writeup.** Dashboard y narrativa raw → recomendación.
 
 ---

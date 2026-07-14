@@ -1,0 +1,84 @@
+name: CI (PR)
+
+# Construye cada PR en un dataset efímero aislado (dbt_ci_pr_<n>), corre
+# dbt build (Slim CI si hay manifest de prod para --defer) y borra el dataset
+# al final, pase o falle. Nunca toca `analytics`.
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CI_DATASET: dbt_ci_pr_${{ github.event.pull_request.number }}
+      KEYFILE: ${{ github.workspace }}/gcp-keyfile.json
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dbt
+        run: pip install -r requirements.txt
+
+      - name: Autenticar en GCP (service account)
+        env:
+          DBT_GOOGLE_KEYFILE: ${{ secrets.DBT_GOOGLE_KEYFILE }}
+        run: |
+          printf '%s' "$DBT_GOOGLE_KEYFILE" > "$KEYFILE"
+          gcloud auth activate-service-account --key-file="$KEYFILE"
+          gcloud config set project aleph12
+
+      - name: Generar profiles.yml de CI
+        run: |
+          mkdir -p "$HOME/.dbt"
+          cat > "$HOME/.dbt/profiles.yml" <<EOF
+          aleph:
+            target: ci
+            outputs:
+              ci:
+                type: bigquery
+                method: service-account
+                keyfile: $KEYFILE
+                project: aleph12
+                dataset: ${CI_DATASET}
+                location: US
+                threads: 8
+                maximum_bytes_billed: 20000000000
+          EOF
+
+      - name: dbt deps
+        run: dbt deps
+
+      - name: Descargar manifest de prod (para Slim CI)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id=$(gh run list --workflow scheduled_prod.yml --status success -L 1 \
+            --json databaseId -q '.[0].databaseId' || true)
+          if [ -n "$run_id" ]; then
+            gh run download "$run_id" -n prod-manifest -D prod-manifest || true
+          fi
+
+      - name: dbt build
+        run: |
+          if [ -f prod-manifest/manifest.json ]; then
+            echo "::notice::Slim CI — solo modelos modificados y sus descendientes"
+            dbt build --select state:modified+ --defer --state prod-manifest --favor-state
+          else
+            echo "::notice::Build completo (aún no hay manifest de prod)"
+            dbt build
+          fi
+
+      - name: Teardown del dataset efímero
+        if: always()
+        run: bq --location=US rm -r -f -d "aleph12:${CI_DATASET}" || true
