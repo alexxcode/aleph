@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: ml
+    description: >
+      Salidas del paso de Python (Fase 6). Se materializan fuera de dbt (el script
+      ml/train_forecast.py escribe a BigQuery) y reingresan al warehouse como source.
+    database: aleph12
+    schema: dbt_alexis
+    tables:
+      - name: ml_forecast_demand
+        description: >
+          Pronóstico de demanda por categoría x semana futura (LightGBM). Columnas:
+          category, forecast_week, week_ahead, predicted_units, model, generated_at.
