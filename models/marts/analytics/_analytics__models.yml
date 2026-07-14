@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: mart_product_performance
+    description: >
+      Desempeño por producto y mes: unidades, ingreso, costo y margen. Grano:
+      producto x mes. Validación de negocio: la suma de gross_revenue cuadra con
+      fct_order_items (ver test singular assert_product_performance_reconciles).
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [product_id, month_start_date]
+    columns:
+      - name: gross_margin_pct
+        description: Margen bruto como fracción del ingreso.
+      - name: units_sold
+        description: Unidades vendidas en el mes.
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+
+  - name: mart_inventory_health
+    description: >
+      Salud de inventario al último snapshot: cobertura, sell-through, dead stock
+      y clasificación ABC. Grano: producto x centro. Validación: abc_class solo
+      toma valores A/B/C y sell_through está en [0,1].
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [product_id, distribution_center_id]
+    columns:
+      - name: abc_class
+        description: Clasificación ABC por contribución al ingreso de 12 meses.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['A', 'B', 'C']
+      - name: sell_through_90d
+        description: Fracción vendida sobre (vendido + on hand) en 90 días.
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                max_value: 1
+
+  - name: mart_customer_rfm
+    description: >
+      Segmentación RFM de clientes con al menos una compra. Grano: cliente.
+      Validación: scores en [1,5] y segment dentro del catálogo de segmentos.
+    columns:
+      - name: customer_id
+        description: Clave primaria del cliente.
+        data_tests:
+          - unique
+          - not_null
+      - name: segment
+        description: Etiqueta RFM del cliente.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Champions', 'Loyal', 'New', 'At Risk', 'Hibernating', 'Others']
+      - name: r_score
+        description: Score de recencia (5 = más reciente).
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
+                max_value: 5
+
+  - name: mart_fulfillment_sla
+    description: >
+      SLA de fulfillment por centro y mes: tiempos order-to-ship y ship-to-deliver
+      y tasa de entrega. Grano: centro x mes. Validación: pct_delivered en [0,1].
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [distribution_center_id, month_start_date]
+    columns:
+      - name: pct_delivered
+        description: Fracción de líneas entregadas.
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                max_value: 1

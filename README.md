@@ -77,7 +77,7 @@ macros/  ·  tests/  ·  seeds/  ·  .github/workflows/
 - [x] **Fase 2 — Núcleo dimensional.** Dims + facts incrementales, partición/cluster, relationships.
 - [x] **Fase 3 — Snapshots SCD2.** Historial de precio/costo y margen histórico correcto.
 - [x] **Fase 4 — Calidad + documentación.** `dbt_expectations`, tests singulares, contracts, exposures, [grafo de linaje](docs/lineage.md).
-- [ ] **Fase 5 — Marts analíticos.** Performance de producto, salud de inventario (ABC), RFM, SLA de fulfillment.
+- [x] **Fase 5 — Marts analíticos.** Performance de producto, salud de inventario (ABC), RFM, SLA de fulfillment.
 - [ ] **Fase 6 — Features + forecast ML.** Features de demanda, LightGBM, recomendaciones de inventario.
 - [ ] **Fase 7 — Capa semántica.** Métricas (revenue, gross_margin, aov, units_sold).
 - [ ] **Fase 8 — Orquestación + CI/CD.** Actions, Slim CI, corrida diaria.
