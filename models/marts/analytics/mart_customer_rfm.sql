@@ -1,5 +1,6 @@
 -- Segmentación RFM de clientes con al menos una compra. Scores 1-5 por quintiles
 -- (recency invertida: más reciente = mejor) y etiqueta de segmento.
+-- (cambio mínimo para probar el CI de PR — Slim CI reconstruye este modelo)
 
 with orders as (
 
