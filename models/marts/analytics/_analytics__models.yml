@@ -68,6 +68,53 @@ models:
                 min_value: 1
                 max_value: 5
 
+  - name: mart_demand_features
+    description: >
+      Tabla de features para el forecast de demanda (LightGBM, Fase 6). Grano:
+      categoría x semana, panel denso con lags, medias móviles, calendario y
+      señales de tráfico web. Validación: grano único y unidades no negativas.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [category, week_start_date]
+    columns:
+      - name: units_sold
+        description: Unidades vendidas de la categoría en la semana (target del modelo).
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+
+  - name: mart_inventory_recommendations
+    description: >
+      Recomendaciones de inventario por producto x centro (cierre del loop ML).
+      Cruza el forecast de demanda por categoría (asignado a SKU por participación)
+      con el inventario actual. Grano: producto x centro.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [product_id, distribution_center_id]
+    columns:
+      - name: category_share
+        description: Participación del producto en la venta reciente de su categoría.
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: suggested_reorder_qty
+        description: Cantidad sugerida a reordenar (0 si no requiere reorden).
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+      - name: inventory_status
+        description: Clasificación accionable (Stockout risk / Reorder / Healthy / Overstock).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Stockout risk', 'Reorder', 'Healthy', 'Overstock']
+
   - name: mart_fulfillment_sla
     description: >
       SLA de fulfillment por centro y mes: tiempos order-to-ship y ship-to-deliver

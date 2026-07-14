@@ -14,6 +14,7 @@ exposures:
       - ref('mart_inventory_health')
       - ref('mart_customer_rfm')
       - ref('mart_fulfillment_sla')
+      - ref('mart_inventory_recommendations')
     owner:
       name: Alexis Rojas
 
@@ -26,7 +27,6 @@ exposures:
       derivadas de las ventas. Su salida (ml_forecast_demand) reingresa a dbt
       como source para las recomendaciones de inventario.
     depends_on:
-      - ref('fct_order_items')
-      - ref('dim_products')
+      - ref('mart_demand_features')
     owner:
       name: Alexis Rojas

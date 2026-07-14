@@ -21,6 +21,10 @@ vars:
   "dbt_date:time_zone": "UTC"
   # ventana de la foto diaria de inventario (fct_inventory_snapshot)
   inventory_snapshot_start_date: "2025-07-01"
+  # parámetros de política de inventario (mart_inventory_recommendations, Fase 6)
+  inventory_lead_time_weeks: 2
+  inventory_safety_weeks: 1
+  inventory_target_weeks: 4
 
 # Materializaciones por defecto por capa (instrucciones.md §4).
 # Los facts se materializan como incremental con partición/cluster; esa

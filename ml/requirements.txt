@@ -1,0 +1,8 @@
+# Entorno del forecast de demanda (Fase 6). Independiente del entorno dbt.
+lightgbm>=4.1,<5
+pandas>=2.0,<3
+numpy>=1.24
+scikit-learn>=1.3
+google-cloud-bigquery>=3.11
+db-dtypes>=1.1
+pyarrow>=12.0
