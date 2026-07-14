@@ -15,6 +15,10 @@ flowchart LR
     fct_orders["fct_orders"]:::fct
     int_customer_orders["int_customer_orders"]:::intermediate
     int_order_items_enriched["int_order_items_enriched"]:::intermediate
+    mart_customer_rfm["mart_customer_rfm"]:::model
+    mart_fulfillment_sla["mart_fulfillment_sla"]:::model
+    mart_inventory_health["mart_inventory_health"]:::model
+    mart_product_performance["mart_product_performance"]:::model
     snap_products["snap_products"]:::snap
     src_distribution_centers["thelook.distribution_centers"]:::source
     src_events["thelook.events"]:::source
@@ -31,16 +35,27 @@ flowchart LR
     stg_thelook__products["stg_thelook__products"]:::staging
     stg_thelook__users["stg_thelook__users"]:::staging
 
+    dim_customers --> mart_customer_rfm
     dim_dates --> fct_inventory_snapshot
+    dim_dates --> mart_fulfillment_sla
+    dim_dates --> mart_product_performance
+    dim_distribution_centers --> mart_fulfillment_sla
     dim_products --> exp_demand_forecast
-    dim_products --> exp_executive_dashboard
-    fct_inventory_snapshot --> exp_executive_dashboard
+    dim_products --> mart_inventory_health
+    dim_products --> mart_product_performance
+    fct_inventory_snapshot --> mart_inventory_health
     fct_order_items --> exp_demand_forecast
-    fct_order_items --> exp_executive_dashboard
-    fct_orders --> exp_executive_dashboard
+    fct_order_items --> mart_fulfillment_sla
+    fct_order_items --> mart_inventory_health
+    fct_order_items --> mart_product_performance
+    fct_orders --> mart_customer_rfm
     int_customer_orders --> dim_customers
     int_order_items_enriched --> fct_order_items
     int_order_items_enriched --> fct_orders
+    mart_customer_rfm --> exp_executive_dashboard
+    mart_fulfillment_sla --> exp_executive_dashboard
+    mart_inventory_health --> exp_executive_dashboard
+    mart_product_performance --> exp_executive_dashboard
     snap_products --> int_order_items_enriched
     src_distribution_centers --> stg_thelook__distribution_centers
     src_events --> stg_thelook__events

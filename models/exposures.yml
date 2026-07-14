@@ -10,10 +10,10 @@ exposures:
       inventario. La URL se completa al desplegar la capa BI.
     url: https://github.com/alexxcode/aleph
     depends_on:
-      - ref('fct_orders')
-      - ref('fct_order_items')
-      - ref('fct_inventory_snapshot')
-      - ref('dim_products')
+      - ref('mart_product_performance')
+      - ref('mart_inventory_health')
+      - ref('mart_customer_rfm')
+      - ref('mart_fulfillment_sla')
     owner:
       name: Alexis Rojas
 
