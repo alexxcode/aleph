@@ -79,6 +79,22 @@ Grafo de linaje real generado desde el manifest: [`docs/lineage.md`](docs/lineag
 
 ---
 
+## Dashboard
+
+Dashboard interactivo en **Streamlit** sobre los marts ([`bi/`](bi/)) — KPIs de negocio y cinco vistas.
+
+![KPIs y desempeño por producto](imagenes/dashboard-productos.png)
+
+| Salud de inventario (ABC) | Segmentación de clientes (RFM) |
+|---|---|
+| ![Inventario ABC](imagenes/dashboard-inventario-abc.png) | ![Clientes RFM](imagenes/dashboard-clientes-rfm.png) |
+
+| SLA de fulfillment por centro | Recomendaciones de inventario (forecast ML) |
+|---|---|
+| ![Fulfillment SLA](imagenes/dashboard-fulfillment.png) | ![Recomendaciones ML](imagenes/dashboard-recomendaciones-ml.png) |
+
+---
+
 ## Decisiones de arquitectura
 
 - **Forecast a grano categoría × semana, no producto.** La demanda por SKU es tan dispersa (ningún producto supera ~24 ventas en 3 años) que a ese grano no hay señal; se pronostica por categoría y se **asigna a SKU por participación** (jerárquico top-down).
