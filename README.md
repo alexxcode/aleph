@@ -79,7 +79,7 @@ macros/  ·  tests/  ·  seeds/  ·  .github/workflows/
 - [x] **Fase 4 — Calidad + documentación.** `dbt_expectations`, tests singulares, contracts, exposures, [grafo de linaje](docs/lineage.md).
 - [x] **Fase 5 — Marts analíticos.** Performance de producto, salud de inventario (ABC), RFM, SLA de fulfillment.
 - [x] **Fase 6 — Features + forecast ML.** Features de demanda (categoría×semana), LightGBM con validación temporal, forecast de vuelta a BQ, recomendaciones de inventario.
-- [ ] **Fase 7 — Capa semántica.** Métricas (revenue, gross_margin, aov, units_sold).
+- [x] **Fase 7 — Capa semántica.** Métricas (revenue, gross_margin, aov, units_sold) con MetricFlow.
 - [ ] **Fase 8 — Orquestación + CI/CD.** Actions, Slim CI, corrida diaria.
 - [ ] **Fase 9 — BI + writeup.** Dashboard y narrativa raw → recomendación.
 

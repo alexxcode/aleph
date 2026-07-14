@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: metricflow_time_spine
+    description: Time spine diario para MetricFlow (calendario de dim_dates).
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        description: Día calendario.
+        granularity: day
+
+semantic_models:
+  - name: order_items
+    description: Modelo semántico sobre el hecho de línea de orden.
+    model: ref('fct_order_items')
+    defaults:
+      agg_time_dimension: order_date
+    entities:
+      - name: order_item
+        type: primary
+        expr: order_item_id
+      - name: order
+        type: foreign
+        expr: order_id
+      - name: product
+        type: foreign
+        expr: product_id
+      - name: customer
+        type: foreign
+        expr: user_id
+      - name: distribution_center
+        type: foreign
+        expr: distribution_center_id
+    dimensions:
+      - name: order_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: status
+        type: categorical
+    measures:
+      - name: sale_price_total
+        description: Suma del precio de venta.
+        agg: sum
+        expr: sale_price
+      - name: gross_margin_total
+        description: Suma del margen bruto.
+        agg: sum
+        expr: gross_margin_amount
+      - name: orders_distinct
+        description: Órdenes distintas.
+        agg: count_distinct
+        expr: order_id
+      - name: order_items_count
+        description: Conteo de líneas de orden (unidades).
+        agg: count
+        expr: order_item_id
+
+metrics:
+  - name: revenue
+    label: Revenue
+    description: Ingreso bruto por venta.
+    type: simple
+    type_params:
+      measure: sale_price_total
+
+  - name: gross_margin
+    label: Gross margin
+    description: Margen bruto total.
+    type: simple
+    type_params:
+      measure: gross_margin_total
+
+  - name: units_sold
+    label: Units sold
+    description: Unidades vendidas (líneas de orden).
+    type: simple
+    type_params:
+      measure: order_items_count
+
+  - name: orders
+    label: Orders
+    description: Número de órdenes distintas.
+    type: simple
+    type_params:
+      measure: orders_distinct
+
+  - name: aov
+    label: Average order value
+    description: Ticket promedio (revenue / orders).
+    type: ratio
+    type_params:
+      numerator: revenue
+      denominator: orders
