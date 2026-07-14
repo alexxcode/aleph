@@ -1,0 +1,6 @@
+# Dashboard BI (Fase 9). Lee los marts de BigQuery.
+streamlit>=1.36,<2
+plotly>=5.22
+google-cloud-bigquery>=3.11
+db-dtypes>=1.1
+pandas>=2.0,<3
