@@ -21,6 +21,7 @@ flowchart LR
     mart_inventory_health["mart_inventory_health"]:::model
     mart_inventory_recommendations["mart_inventory_recommendations"]:::model
     mart_product_performance["mart_product_performance"]:::model
+    metricflow_time_spine["metricflow_time_spine"]:::model
     snap_products["snap_products"]:::snap
     src_distribution_centers["thelook.distribution_centers"]:::source
     src_events["thelook.events"]:::source
@@ -42,6 +43,7 @@ flowchart LR
     dim_dates --> fct_inventory_snapshot
     dim_dates --> mart_fulfillment_sla
     dim_dates --> mart_product_performance
+    dim_dates --> metricflow_time_spine
     dim_distribution_centers --> mart_fulfillment_sla
     dim_products --> mart_demand_features
     dim_products --> mart_inventory_health
